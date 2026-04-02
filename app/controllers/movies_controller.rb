@@ -45,6 +45,29 @@ class MoviesController < ApplicationController
     redirect_to movies_path
   end
 
+  def search_tmdb
+    search_terms = params[:search_terms] || params[:title]
+    
+    if search_terms.blank?
+      flash[:danger] = 'Please fill in all required fields!'
+      @movies = []
+      return
+    end
+
+    if params[:title].present? || params[:search_terms].present?
+      input = params[:search_terms] || {
+        title: params[:title],
+        release_year: params[:release_year],
+        language: params[:language]
+      }
+      @movies = Movie.find_in_tmdb(input)
+    end
+
+    if @movies.present? && @movies.empty?
+      flash[:warning] = 'No movies found with given parameters!'
+    end
+  end
+
   private
 
   def force_index_redirect
