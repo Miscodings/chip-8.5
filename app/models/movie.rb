@@ -29,19 +29,7 @@ class Movie < ApplicationRecord
     response = Faraday.get(url)
     Rails.logger.info "TMDb response status: #{response&.status}"
     Rails.logger.info "TMDb response body: #{response&.body&.first(500)}"
-    
-    return [] if response.nil? || !response.success?
-    results = JSON.parse(response.body)['results']
-    results.map do |movie|
-      Movie.new(
-        title: movie['title'],
-        release_date: movie['release_date'],
-        rating: 'R'
-      )
-    end
-  end
 
-    response = Faraday.get(url)
     return [] if response.nil? || !response.success?
     results = JSON.parse(response.body)['results']
     results.map do |movie|
