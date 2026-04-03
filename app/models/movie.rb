@@ -13,7 +13,7 @@ class Movie < ApplicationRecord
     end
   end
 
-  def self.find_in_tmdb(search_terms, api_key = 'fake_key')
+  def self.find_in_tmdb(search_terms, api_key = ENV['TMDB_API_KEY'])
     if search_terms.is_a?(Hash)
       title = search_terms[:title]
       language = search_terms[:language]
@@ -24,6 +24,22 @@ class Movie < ApplicationRecord
     else
       url = search_terms
     end
+
+    Rails.logger.info "TMDb URL: #{url}"
+    response = Faraday.get(url)
+    Rails.logger.info "TMDb response status: #{response&.status}"
+    Rails.logger.info "TMDb response body: #{response&.body&.first(500)}"
+    
+    return [] if response.nil? || !response.success?
+    results = JSON.parse(response.body)['results']
+    results.map do |movie|
+      Movie.new(
+        title: movie['title'],
+        release_date: movie['release_date'],
+        rating: 'R'
+      )
+    end
+  end
 
     response = Faraday.get(url)
     return [] if response.nil? || !response.success?
