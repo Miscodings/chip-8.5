@@ -64,6 +64,16 @@ class MoviesController < ApplicationController
     end
   end
 
+  def add_movie
+    @movie = Movie.create!(
+      title: params[:title],
+      release_date: params[:release_date],
+      rating: params[:rating]
+    )
+    flash[:notice] = "#{@movie.title} was successfully added to RottenPotatoes."
+    redirect_to search_tmdb_path
+  end
+
   private
 
   def force_index_redirect
@@ -84,5 +94,9 @@ class MoviesController < ApplicationController
 
   def sort_by
     params[:sort_by] || session[:sort_by] || 'id'
+  end
+  
+  def movie_params
+    params.require(:movie).permit(:title, :rating, :description, :release_date)
   end
 end
